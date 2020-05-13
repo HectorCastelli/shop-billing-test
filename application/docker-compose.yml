@@ -16,6 +16,7 @@ services:
       - DB_HOST=docker-mysql
     volumes:
       - ./api:/api
+      - /api/node_modules
   db:
     build: ./database
     env_file:
