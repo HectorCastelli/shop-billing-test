@@ -11,7 +11,7 @@ interview.
 We want to create a platform to manage the billing of a shop. The functional concepts in the
 platform are:
 
-- Products: can be of two tipes
+- Products: can be of two types
   - Unit based: price by unit
 - Examples: bread, bottle of water, dozen of eggs
   - Weight based: price by kilogram (the weight can be different for each customer, it
@@ -22,7 +22,7 @@ is not a pack)
   - Tuples of product-quantity (the quantity of each product may be units or weight)
   - A date
 
-### The required functionalities are:
+### The required functionalities are
 
 - Create a new order
 - Add one or more unit based product to a order (for example: 2 breads, 1 bottle of water)
@@ -35,14 +35,14 @@ example: get the total revenue of tomatoes in the last week)
 **You can define the database structure and the offered APIs as you consider** it’s the best
 and optimal way to do it
 
-Any extra functionality that make sense in this platform will be valoreated positively
+Any extra functionality that make sense in this platform will be valued positively
 
 ### Technical requirements
 
 For the implementation the requirements are:
 
 - A way to validate that all the functionalities required are working correctly (tests or a set
-of data to replicate the behaviour plus an script, or other way you think we can validate
+of data to replicate the behavior plus an script, or other way you think we can validate
 the platform is working correctly)
 - All the communication with the platform must be through APIs (REST or GraphQL, as
 you think it is the best)

@@ -4,7 +4,7 @@ const baseUrl = "/orders/";
 
 const { Order, Product } = require("../../src/database/sequelize");
 
-describe("Check Orders endpoins", () => {
+describe("Check Orders endpoints", () => {
   it("Create a new order", async () => {
     const newOrder = await Order.create({});
     const res = await request(api)

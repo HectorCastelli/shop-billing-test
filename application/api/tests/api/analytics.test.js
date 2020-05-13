@@ -2,7 +2,7 @@ const request = require("supertest");
 const api = require("../../src/api");
 const baseUrl = "/analytics/";
 
-describe("Check Analytics endpoins", () => {
+describe("Check Analytics endpoints", () => {
   it("Get revenue for today.", async () => {
     const today = new Date();
     const res = await request(api)

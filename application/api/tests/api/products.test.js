@@ -2,7 +2,7 @@ const request = require("supertest");
 const api = require("../../src/api");
 const baseUrl = "/products/";
 
-describe("Check Products endpoins", () => {
+describe("Check Products endpoints", () => {
   it("Create a new unit-based product", async () => {
     const sampleProduct = await Product.create({
       productId: 2,

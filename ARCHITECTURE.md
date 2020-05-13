@@ -28,7 +28,7 @@ Before getting started with code, it's important to know what functionality we w
   - Add Products to order
   - Remove Products from order
   - Get total price of an order
-  - Effectivate an order (AKA pay for it)
+  - Conclude an order (AKA pay for it)
 
 - Products
   - Create unit-based products
@@ -75,9 +75,9 @@ The endpoints will be named after their functionality in hopes of keeping the AP
 To be as correct as possible while still being relatively easy to remember, the expected status codes are:
 
 - 200: Request OKAY
-  - Request was sucessfull
+  - Request was successful
 - 201: Resource Created
-  - Creation/Write request sucessfull
+  - Creation/Write request successful
 - 400: Bad Request
   - Request doesn't follow the expected format
   - Missing required fields
@@ -89,11 +89,11 @@ To be as correct as possible while still being relatively easy to remember, the 
 - 500: Exception
   - Any other exceptions
 
-## Thinking data-structure
+## Thinking data-structures
 
 Now that the tests are designed (as far as their function goes), we run into an issue that we don't know WHAT data to test for.
 
-Defininig the apparence of the data based on its functionality is the desired way to go here.
+Defining the appearance of the data based on its functionality is the desired way to go here.
 
 To avoid switching context too much, I decided to use `sequelize` and `sequelize-cli` to create and managed the database.
 
@@ -113,10 +113,16 @@ The database will have three tables like this:
 - OrderProduct
   - `OrderId`
   - `ProductId` - Not `Product`.`id`, since a same physical product can have multiple entries in `Product` if their values are updated.
-  - `amount` - The amout of units of the Product.
+  - `amount` - The amount of units of the Product.
 
 All tables have `id` (except OrderProduct), `createdAt` and `updatedAt` fields that are managed "automagically" by sequelize.
 
 To comfortably use the sequelize models on other parts of the application, the `src/database/sequelize.js` module is used.
 
-Another addition is, on `api.js`, the first step is to load the database and verify if any tables need creation. This is a design choice to make the application easily testeable when executing on a local enviroment.
+Another addition is, on `api.js`, the first step is to load the database and verify if any tables need creation. This is a design choice to make the application easily testeable when executing on a local environment.
+
+## Implementing functionality
+
+In the largest scope of things, the easiest step.
+
+My aim is to use the previously created sequelize models to run the necessary queries to execute the functionality that is necessary.
