@@ -2,3 +2,5 @@
 node_modules/
 #SQLite Database
 *.sqlite3
+#Jest reports
+coverage/

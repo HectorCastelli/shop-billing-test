@@ -10,11 +10,8 @@ module.exports = {
     },
 
     test: {
-        dialect: 'mysql',
-        host: dbHost,
-        username: dbUser,
-        password: dbPassword,
-        database: dbName
+        dialect: 'sqlite',
+        storage: `./${dbName}.sqlite3`,
     },
   
     production: {
