@@ -95,4 +95,28 @@ Now that the tests are designed (as far as their function goes), we run into an 
 
 Defininig the apparence of the data based on its functionality is the desired way to go here.
 
+To avoid switching context too much, I decided to use `sequelize` and `sequelize-cli` to create and managed the database.
 
+I first created the necessary configuration files to use `sequelize-cli` then proceeded to generate models for the three object types: *Order*, *Product* and their joining mechanism *OrderProducts*.
+
+The database will have three tables like this:
+
+- Product
+  - `productId` - A custom identifier for the specific product. Not the primary key, as updates to a product would insert new rows with the same `productId` but potentially different values for the other fields.
+  - `name`
+  - `unitType` - The base unit, like "Packs" or "Kilos". This is an extra field to allow for a single Product table to store all product types (unit-based, weight-based, volume-based, etc).
+  - `basePrice` - The price of 1 unit of `unitType`
+  - `inCirculation` - If a product can still be purchased, only one element with this `productId` should have this as `true`.
+- Order
+  - `finalCost`
+  - `isPayed`
+- OrderProduct
+  - `OrderId`
+  - `ProductId` - Not `Product`.`id`, since a same physical product can have multiple entries in `Product` if their values are updated.
+  - `amount` - The amout of units of the Product.
+
+All tables have `id` (except OrderProduct), `createdAt` and `updatedAt` fields that are managed "automagically" by sequelize.
+
+To comfortably use the sequelize models on other parts of the application, the `src/database/sequelize.js` module is used.
+
+Another addition is, on `api.js`, the first step is to load the database and verify if any tables need creation. This is a design choice to make the application easily testeable when executing on a local enviroment.

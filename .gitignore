@@ -1,2 +1,4 @@
 #Node.JS
 node_modules/
+#SQLite Database
+*.sqlite3

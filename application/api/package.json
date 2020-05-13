@@ -4,7 +4,8 @@
   "description": "A simple shop order+inventory management API.",
   "main": "src/api.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node src/listener.js"
   },
   "repository": {
     "type": "git",
@@ -25,10 +26,14 @@
   "homepage": "https://github.com/HectorCastelli/shop-billing-test#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "sequelize": "^5.21.8",
+    "sqlite3": "^4.2.0"
   },
   "devDependencies": {
     "jest": "^26.0.1",
+    "sequelize-cli": "^5.5.1",
     "supertest": "^4.0.2"
   }
 }
