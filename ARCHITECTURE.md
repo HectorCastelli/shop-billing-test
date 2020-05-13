@@ -71,3 +71,28 @@ The endpoints will be named after their functionality in hopes of keeping the AP
     - *ID*/revenue?from=*date*&to=*date*
   - orders/
     - revenue?from=*date*&to=*date
+
+To be as correct as possible while still being relatively easy to remember, the expected status codes are:
+
+- 200: Request OKAY
+  - Request was sucessfull
+- 201: Resource Created
+  - Creation/Write request sucessfull
+- 400: Bad Request
+  - Request doesn't follow the expected format
+  - Missing required fields
+- 403: Forbidden Request
+  - Request is logically forbidden (Paying an already paid-for order)
+- 404: Resource Missing
+  - Requested resource is missing
+  - No resources match requested description
+- 500: Exception
+  - Any other exceptions
+
+## Thinking data-structure
+
+Now that the tests are designed (as far as their function goes), we run into an issue that we don't know WHAT data to test for.
+
+Defininig the apparence of the data based on its functionality is the desired way to go here.
+
+
