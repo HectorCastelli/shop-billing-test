@@ -18,17 +18,17 @@ platform are:
 is not a pack)
     - Example: tomatoes, oranges
 
-- Tickets: each ticket contains
+- Orders: each order contains
   - Tuples of product-quantity (the quantity of each product may be units or weight)
   - A date
 
 ### The required functionalities are:
 
-- Create a new ticket
-- Add one or more unit based product to a ticket (for example: 2 breads, 1 bottle of water)
+- Create a new order
+- Add one or more unit based product to a order (for example: 2 breads, 1 bottle of water)
 - Add product based in weight (for example: 500 grams of tomatoes, 333 grams of
 tomatoes, 250 grams of oranges)
-- Get the total price of a ticket
+- Get the total price of a order
 - For analysis purposes, we also want to get the revenue of a product in a time range (for
 example: get the total revenue of tomatoes in the last week)
 

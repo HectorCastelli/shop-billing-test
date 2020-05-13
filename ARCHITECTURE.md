@@ -18,3 +18,56 @@ This repository will be organized to have separate folders for the API code and 
 On the API section, the source code, as well as helper scripts will be included.
 
 On the Database section, initialization scripts will be included.
+
+## Planning the API
+
+Before getting started with code, it's important to know what functionality we want to support. This way, we can plan our data structure accordingly.
+
+- Orders
+  - Create new order
+  - Add Products to order
+  - Remove Products from order
+  - Get total price of an order
+  - Effectivate an order (AKA pay for it)
+
+- Products
+  - Create unit-based products
+  - Create weight-based products
+  - Update a product's price
+  - Remove a product from circulation
+  - Search products by name
+  - Search products by price range
+
+- Analytics
+  - Products
+    - See price history
+    - See revenue in a time-range
+    - See best-sellers in a time-range
+  - Orders
+    - See revenue in a time-range
+
+To simplify the HTTP verbs used, I will stick to GET for all READ request and POST to all WRITE requests.
+
+The endpoints will be named after their functionality in hopes of keeping the API human friendly.
+
+- orders/
+  - create/
+  - *ID*/product/add
+  - *ID*/product/remove
+  - *ID*/getCost
+  - *ID*/processPayment
+
+- products/
+  - create/
+  - search/?name=*name*&from=*price*&to=*price*
+  - *ID*/updatePrice
+  - *ID*/remove
+
+- analytics/
+  - products/
+    - bestSellers?from=*date*&to=*date*
+    - revenue?from=*date*&to=*date*
+    - *ID*/priceHistory
+    - *ID*/revenue?from=*date*&to=*date*
+  - orders/
+    - revenue?from=*date*&to=*date
