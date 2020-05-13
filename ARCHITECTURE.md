@@ -52,23 +52,23 @@ The endpoints will be named after their functionality in hopes of keeping the AP
 
 - orders/
   - create/
-  - *ID*/product/add
-  - *ID*/product/remove
-  - *ID*/getCost
-  - *ID*/processPayment
+  - order/*ID*/product/add
+  - order/*ID*/product/remove
+  - order/*ID*/getCost
+  - order/*ID*/processPayment
 
 - products/
   - create/
   - search/?name=*name*&from=*price*&to=*price*
-  - *ID*/updatePrice
-  - *ID*/remove
+  - product/*ID*/updatePrice
+  - product/*ID*/remove
 
 - analytics/
   - products/
     - bestSellers?from=*date*&to=*date*
     - revenue?from=*date*&to=*date*
-    - *ID*/priceHistory
-    - *ID*/revenue?from=*date*&to=*date*
+    - product/*ID*/priceHistory
+    - product/*ID*/revenue?from=*date*&to=*date*
   - orders/
     - revenue?from=*date*&to=*date
 

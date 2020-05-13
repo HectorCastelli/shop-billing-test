@@ -9,6 +9,7 @@ app.use(
 );
 app.use(bodyParser.json());
 
+const environment = process.env.NODE_ENV || "development";
 /**
  * A temporary middleware to log requests and information related to it to the console for easier debugging.
  *
@@ -30,29 +31,59 @@ const loggerMiddleware = (req, res, next) => {
     ${JSON.stringify(req.query, null, 2)}
     Body:
     ${JSON.stringify(req.body, null, 2)}`;
-  console.log(log);
+  if (environment === "development") console.log(log);
+  next();
+};
+
+/**
+ * A middleware to catch all untreated errors.
+ *
+ * @param {*} err Error
+ * @param {*} req Request
+ * @param {*} res Response (empty at this point)
+ * @param {*} next Express.js next
+ */
+const errorReporter = (err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({
+    error: "Server Error",
+    details: err.stack,
+  });
   next();
 };
 
 app.use(loggerMiddleware);
+app.use(errorReporter);
 
 app.get("/", (req, res) => {
-  database.sequelize.authenticate().then(()=>{
-    res.status(200).json({
-      healthy: true,
-      database: 'up'
+  database.sequelize
+    .authenticate()
+    .then(() => {
+      res.status(200).json({
+        healthy: true,
+        database: "up",
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        healthy: false,
+        database: "down",
+      });
     });
-  }).catch((error) => {
-    res.status(500).json({
-      healthy: false,
-      database: 'down'
-    });
-  })
 });
 
 const database = require("./database/sequelize");
 
-database.sequelize.sync({ force: true }).then(() => {
+const syncOptions = {
+  force: false,
+  logging: false,
+};
+if (environment === "development" || environment === "test") {
+  syncOptions.force = true;
+  syncOptions.logging = environment === "development";
+}
+
+database.sequelize.sync(syncOptions).then(() => {
   console.log(`Database & tables created!`);
 });
 

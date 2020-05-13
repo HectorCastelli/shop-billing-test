@@ -3,6 +3,6 @@ describe('Enviroment File test', () => {
         expect(true).toBe(true);
     })
     it("checks for NODE_ENV variable", () => {
-        expect(process.env.NODE_ENV).toBe("true");
+        expect(process.env.NODE_ENV).toBe("test");
     })
 });

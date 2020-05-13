@@ -84,7 +84,7 @@ describe("Check Analytics endpoints", () => {
   it("Get a product's revenue for today.", async () => {
     const today = new Date();
     const res = await request(api)
-      .get(baseUrl + "products/1/revenue")
+      .get(baseUrl + "products/product/1/revenue")
       .query({ from: today });
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty("totalRevenue");
@@ -93,7 +93,7 @@ describe("Check Analytics endpoints", () => {
     const today = new Date();
     const sevenDaysAgo = today.setDate(today.getDate() - 7);
     const res = await request(api)
-      .get(baseUrl + "products/1/revenue")
+      .get(baseUrl + "products/product/1/revenue")
       .query({ from: sevenDaysAgo, to: today });
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty("totalRevenue");
@@ -103,12 +103,12 @@ describe("Check Analytics endpoints", () => {
     const sevenDaysAgo = today.setDate(today.getDate() - 7);
     const fourteenDaysAgo = today.setDate(today.getDate() - 14);
     const res = await request(api)
-      .get(baseUrl + "products/1/revenue")
+      .get(baseUrl + "products/product/1/revenue")
       .query({ from: fourteenDaysAgo, to: sevenDaysAgo });
       expect(res.statusCode).toEqual(404);
   });
   it("Get a product's price history", async () => {
-    const res = await request(api).get(baseUrl + "products/1/priceHistory");
+    const res = await request(api).get(baseUrl + "products/product/1/priceHistory");
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('history');
   });

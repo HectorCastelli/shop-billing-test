@@ -15,7 +15,8 @@ fs
     return (file.indexOf('.') !== 0) && (file.slice(-3) === '.js');
   })
   .forEach(file => {
-    const model = sequelize['import'](path.join(__dirname, 'models', file));
+    const model = sequelize.import((path.join(__dirname, 'models', file)));
+    console.log(model,  (path.join(__dirname, 'models', file)));
     database[model.name] = model;
   });
 
@@ -27,5 +28,7 @@ Object.keys(database).forEach(modelName => {
 
 database.sequelize = sequelize;
 database.Sequelize = Sequelize;
+
+database.utilities = require('./utilities');
 
 module.exports = database;

@@ -8,7 +8,7 @@ describe("Check Orders endpoints", () => {
   it("Create a new order", async () => {
     const newOrder = await Order.create({});
     const res = await request(api)
-      .post(baseUrl + "orders/create")
+      .post(baseUrl + "create")
       .send(newOrder);
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty("order");
@@ -32,7 +32,7 @@ describe("Check Orders endpoints", () => {
       basePrice: 84.95,
     });
     const res = await request(api)
-      .post(baseUrl + "/1/product/add")
+      .post(baseUrl + "order/1/product/add")
       .send({
         product: sampleProduct,
         amount: 1,
@@ -60,7 +60,7 @@ describe("Check Orders endpoints", () => {
       })
     );
     const res = await request(api)
-      .post(baseUrl + "/1/product/add")
+      .post(baseUrl + "order/1/product/add")
       .send([
         { product: sampleProducts[0], amount: 0.2 },
         { product: sampleProducts[1], amount: 2 },
@@ -72,7 +72,7 @@ describe("Check Orders endpoints", () => {
   });
   it("Fail when adding an invalid product to an order", async () => {
     const res = await request(api)
-      .post(baseUrl + "/1/product/add")
+      .post(baseUrl + "order/1/product/add")
       .send({ invalid: "value" });
     expect(res.statusCode).toEqual(400);
   });
@@ -86,7 +86,7 @@ describe("Check Orders endpoints", () => {
   });
   it("Fail when removing a valid product from an order that doesn't have it", async () => {
     const res = await request(api)
-      .post(baseUrl + "/1/product/remove")
+      .post(baseUrl + "order/1/product/remove")
       .send({ invalid: "value" });
     expect(res.statusCode).toEqual(400);
   });
@@ -102,7 +102,7 @@ describe("Check Orders endpoints", () => {
   });
   it("Fail when removing an invalid product from an order", async () => {
     const res = await request(api)
-      .post(baseUrl + "/1/product/remove")
+      .post(baseUrl + "order/1/product/remove")
       .send({ invalid: "value" });
     expect(res.statusCode).toEqual(400);
   });
@@ -112,12 +112,12 @@ describe("Check Orders endpoints", () => {
     expect(res.body).toHaveProperty("computedCost");
   });
   it("Process payment to a valid order", async () => {
-    const res = await request(api).post(baseUrl + "/1/processPayment");
+    const res = await request(api).post(baseUrl + "order/1/processPayment");
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty("order");
   });
   it("Process payment to an invalid (already paid for) order", async () => {
-    const res = await request(api).post(baseUrl + "/1/processPayment");
+    const res = await request(api).post(baseUrl + "order/1/processPayment");
     expect(res.statusCode).toEqual(403);
   });
 });
