@@ -70,7 +70,7 @@ The endpoints will be named after their functionality in hopes of keeping the AP
     - product/*ID*/priceHistory
     - product/*ID*/revenue?from=*date*&to=*date*
   - orders/
-    - revenue?from=*date*&to=*date
+    - revenue?from=*date*&to=*date*
 
 To be as correct as possible while still being relatively easy to remember, the expected status codes are:
 

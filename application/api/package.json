@@ -4,7 +4,7 @@
   "description": "A simple shop order+inventory management API.",
   "main": "src/api.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest -i --forceExit --detectOpenHandles",
     "start": "node ./src/listener.js"
   },
   "repository": {
@@ -27,6 +27,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "moment": "^2.25.3",
     "mysql2": "^2.1.0",
     "sequelize": "^5.21.8",
     "sqlite3": "^4.2.0"

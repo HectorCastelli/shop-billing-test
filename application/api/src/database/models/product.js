@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
    * Verifies if a Product exists with this productId
    *
    * @param {Number} productId the productId to search for
-   * @returns {Promise<Product|null>}
+   * @returns {Promise<Product>}
    */
   Product.verifyExistence = function (productId) {
     return new Promise((resolve, reject) => {
@@ -44,14 +44,18 @@ module.exports = (sequelize, DataTypes) => {
         where: {
           productId: productId,
         },
-        order: [["id", "DESC"]],
+        order: [
+          ["id", "DESC"],
+          ["createdAt", "DESC"],
+        ],
       })
         .then((product) => {
           if (product) resolve(product);
-          else reject();
+          else reject(product);
         })
         .catch((error) => {
-          throw error;
+          console.error(error);
+          reject(error);
         });
     });
   };
@@ -60,11 +64,11 @@ module.exports = (sequelize, DataTypes) => {
    * Also modifies previous Products so there is only a
    * single one active at all times.
    *
-   * @param {*} id the Product id (PK)
-   * @param {*} newProduct the new Product data
+   * @param {number} oldId the Product id (PK)
+   * @param {Product} newProduct the new Product data
    * @returns {Promise<Product>}
    */
-  Product.modify = function (id, newProduct) {
+  Product.modify = function (oldId, newProduct) {
     return new Promise((resolve, reject) => {
       Product.update(
         {
@@ -72,18 +76,20 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
           where: {
-            id: id,
+            id: oldId,
             inCirculation: true,
           },
         }
-      ).then((oldProducts) => {
-        if (oldProducts.length > 0) {
-          resolve(Product.create(newProduct));
-        } else {
-          reject("No such Product exists with this ID");
-        }
-      })
-      .catch(error=>reject(error));
+      )
+        .then((affected) => {
+          const affectedCount = affected[0];
+          if (affectedCount > 0) {
+            resolve(Product.create(newProduct));
+          } else {
+            reject("No Products modified");
+          }
+        })
+        .catch((error) => reject(error));
     });
   };
   return Product;

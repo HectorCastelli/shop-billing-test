@@ -13,16 +13,19 @@ module.exports = (sequelize, DataTypes) => {
   OrderProducts.associate = function (models) {
     // associations can be defined here
     OrderProducts.belongsTo(models.Order);
-    OrderProducts.belongsTo(models.Product);
+    OrderProducts.belongsTo(models.Product, {
+      constraints: false,
+      required: true,
+    });
   };
 
   /**
    * Finds an existing OrderProducts or creates a new one with zero values.
    * Then sums the amount on top of the existing (or newly created) OrderProducts.
    *
-   * @param {*} OrderId The OrderId
-   * @param {*} ProductId The ProductId
-   * @param {*} amount The amount to be "inserted"
+   * @param {number} OrderId The OrderId
+   * @param {number} ProductId The ProductId
+   * @param {?number} amount The amount to be "inserted"
    * @return {OrderProducts} the updated or created OrderProducts
    */
   OrderProducts.updateAmountOrInsert = async function (
@@ -30,42 +33,48 @@ module.exports = (sequelize, DataTypes) => {
     ProductId,
     amount
   ) {
-    const existingOrderProducts = await OrderProducts.findOne({
+    console.debug(OrderId, ProductId);
+    OrderProducts.findOne({
       where: {
         OrderId: OrderId,
         ProductId: ProductId,
-      }
-    });
-
-    let result;
-    if (amount) {
-      if (!existingOrderProducts) {
-        console.warn("creat new");
-        result = OrderProducts.create(
-          {
+      },
+    })
+      .then(async (existingOrderProducts) => {
+        let updatedOrderProduct;
+        console.debug("good query", existingOrderProducts);
+        // Item already exists?
+        if (existingOrderProducts) {
+          console.debug("exists");
+          // Is the amount set to 0?
+          if (amount && amount !== 0) {
+            console.debug("valid amount");
+            // No, apply transformation
+            updatedOrderProduct = await existingOrderProducts.increment(
+              "amount",
+              {
+                by: amount,
+              }
+            );
+          } else {
+            console.debug("zero amount");
+            // Yes, delete
+            updatedOrderProduct = await existingOrderProducts.destroy();
+          }
+        } else {
+          console.debug("need to create");
+          updatedOrderProduct = await OrderProducts.create({
             OrderId: OrderId,
             ProductId: ProductId,
             amount: amount,
-          }
-        );
-      } else {
-        console.warn("update");
-        existingOrderProducts.amount += amount;
-        if (existingOrderProducts.amount <= 0) {
-          console.warn("delete");
-          result = existingOrderProducts.destroy();
-        } else {
-          console.warn("write");
-          result = existingOrderProducts.save();
+          });
         }
-      }
-    } else {
-      if (existingOrderProducts) {
-        console.warn("delete 2");
-        result = existingOrderProducts.destroy();
-      }
-    }
-    return result;
+        return updatedOrderProduct;
+      })
+      .catch((error) => {
+        console.error(error);
+        console.debug(error.sql);
+      });
   };
   return OrderProducts;
 };

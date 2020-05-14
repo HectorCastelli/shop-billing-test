@@ -17,15 +17,34 @@ validateObjectOrArray = (type, target, allowBlank = false) => {
     } else {
       objects.push(target);
     }
-    const validations = objects.map((object) => type.build(object).validate());
 
-    Promise.all(validations)
-      .then((validated) => {
-        resolve(objects);
-      })
-      .catch((validationErrors) => {
-        reject(validationErrors);
+    //Before validating each object, compare the properties on the object to the expected attributes. If the input has any attribute not in the model, fail.
+    allowedAttributes = type.describe().then((description) => {
+      const typeFields = Object.keys(description);
+      const invalidProperty = objects.some((object) => {
+        return Object.keys(object).some((i) => !typeFields.includes(i));
       });
+      if (invalidProperty) {
+        reject(
+          "Invalid properties in the request: " +
+            objects.map((object) => {
+              return Object.keys(object).filter((i) => !typeFields.includes(i));
+            })
+        );
+      } else {
+        const validations = objects.map((object) =>
+          type.build(object).validate()
+        );
+
+        Promise.all(validations)
+          .then((validated) => {
+            resolve(objects);
+          })
+          .catch((validationErrors) => {
+            reject(validationErrors);
+          });
+      }
+    });
   });
 };
 

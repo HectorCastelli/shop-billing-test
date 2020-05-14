@@ -14,6 +14,7 @@ module.exports = {
     //   "lcov",
     //   "clover"
   ],
+  maxConcurrency: 1,
   reporters: [
     "default",
     [
@@ -21,7 +22,8 @@ module.exports = {
       {
         publicPath: "./test-report",
         filename: "report.html",
-        expand: true,
+        expand: false,
+        hideIcon: true,
       },
     ],
   ],
@@ -29,6 +31,7 @@ module.exports = {
   errorOnDeprecated: true,
   // Activates notifications for test results
   notify: true,
+  verbose: true,
   // The test environment that will be used for testing
   testEnvironment: "node",
 };

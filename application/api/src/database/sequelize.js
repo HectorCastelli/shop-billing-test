@@ -32,9 +32,8 @@ Object.keys(database).forEach((modelName) => {
     for (const name in data) {
       if (data.hasOwnProperty(name)) {
         result[name] = data[name];
-      }
-      else {
-        result[name] = null
+      } else {
+        result[name] = null;
       }
     }
     return result;
