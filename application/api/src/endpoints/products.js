@@ -12,12 +12,12 @@ router.post("/create", (req, res) => {
       Product.findAll({
         where: {
           productId: {
-            in: products.map((p) => p.productId),
+            [Op.in]: products.map((p) => p.productId),
           },
         },
       }).then(async (duplicatedProducts) => {
         if (duplicatedProducts.length > 0) {
-          res.status(403).send({ duplicatedProducts });
+          res.status(403).json({ duplicatedProducts });
         } else {
           try {
             const result = await sequelize.transaction(async (t) => {
@@ -30,9 +30,9 @@ router.post("/create", (req, res) => {
               });
               return createdProducts;
             });
-            res.status(201).send(result);
+            res.status(201).json(result.map((x) => x.serialize()));
           } catch (error) {
-            throw "Error while inserting products.";
+            res.status(500).send("Error while inserting products: " + error);
           }
         }
       });
@@ -43,22 +43,24 @@ router.post("/create", (req, res) => {
 });
 
 router.get("/search", (req, res) => {
-  const name = req.params.name;
-  const from = Date(req.params.from);
-  const to = Date(req.params.to);
+  const name = req.query.name;
+  const from = Number(req.query.from);
+  const to = Number(req.query.to);
 
   const whereClause = {
     inCirculation: true,
   };
 
   if (name) {
-    whereClause.name = { [Op.like]: `%${name}%` };
+    whereClause.name = {
+      [Op.like]: `%${name}%`,
+    };
   }
-  if (from) {
-    whereClause.createdAt = { [Op.gte]: from };
+  if (!isNaN(from)) {
+    whereClause.basePrice = { [Op.gte]: from };
   }
-  if (to) {
-    whereClause.createdAt = { [Op.lte]: to };
+  if (!isNaN(to)) {
+    whereClause.basePrice = { [Op.lte]: to };
   }
 
   Product.findAll({
@@ -67,8 +69,11 @@ router.get("/search", (req, res) => {
     if (results.length === 0) {
       res.status(404).send("No Product found with these parameters");
     } else {
-      res.status(200).json(results);
+      res.status(200).json(results.map((r) => r.serialize()));
     }
+  })
+  .catch((error) => {
+    res.status(500).send(error);
   });
 });
 
@@ -76,7 +81,7 @@ router.get("/product/:productId", (req, res) => {
   const productId = Number(req.params.productId);
   Product.verifyExistence(productId)
     .then((product) => {
-      res.status(200).json(product);
+      res.status(200).json(product.serialize());
     })
     .catch((error) => {
       res.status(404).send("No product with this ID exists.");
@@ -98,7 +103,7 @@ router.post("/product/:productId/updatePrice", (req, res) => {
       newProduct.basePrice = newPrice;
       Product.modify(product.id, newProduct)
         .then((createdProduct) => {
-          res.status(200).json(createdProduct);
+          res.status(200).json(createdProduct.serialize());
         })
         .catch((error) => {
           throw error;
@@ -121,10 +126,10 @@ router.post("/product/:productId/remove", (req, res) => {
       newProduct.inCirculation = false;
       Product.modify(product.id, newProduct)
         .then((createdProduct) => {
-          res.status(200).json(createdProduct);
+          res.status(200).json(createdProduct.serialize());
         })
         .catch((error) => {
-          throw error;
+          res.status(500).send(error);
         });
     })
     .catch((error) => {

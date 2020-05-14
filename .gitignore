@@ -4,3 +4,4 @@ node_modules/
 *.sqlite3
 #Jest reports
 coverage/
+test-report/

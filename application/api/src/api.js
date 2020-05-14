@@ -45,7 +45,7 @@ const loggerMiddleware = (req, res, next) => {
  */
 const errorReporter = (err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send({
+  res.status(500).json({
     error: "Server Error",
     details: err.stack,
   });
@@ -73,19 +73,6 @@ app.get("/", (req, res) => {
 });
 
 const database = require("./database/sequelize");
-
-const syncOptions = {
-  force: false,
-  logging: false,
-};
-if (environment === "development" || environment === "test") {
-  syncOptions.force = true;
-  syncOptions.logging = environment === "development";
-}
-
-database.sequelize.sync(syncOptions).then(() => {
-  console.log(`Database & tables created!`);
-});
 
 app.use("/products", require("./endpoints/products"));
 app.use("/orders", require("./endpoints/orders"));

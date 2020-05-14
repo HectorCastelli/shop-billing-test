@@ -3,11 +3,12 @@
  *
  * @param {Model} type A sequelize Model
  * @param {*} target Any object
+ * @param {?boolean} allowBlank Flag to determine if empty objects are allowed.
  * @returns {Promise<array<Model>>}
  */
-validateObjectOrArray = (type, target) => {
+validateObjectOrArray = (type, target, allowBlank = false) => {
   return new Promise((resolve, reject) => {
-    if (!target || Object.keys(target).length === 0)
+    if (!allowBlank && (!target || Object.keys(target).length === 0))
       reject("No object or array of objects exists on target.");
 
     let objects = [];
@@ -16,16 +17,13 @@ validateObjectOrArray = (type, target) => {
     } else {
       objects.push(target);
     }
-
     const validations = objects.map((object) => type.build(object).validate());
 
     Promise.all(validations)
       .then((validated) => {
-        console.log(validated);
         resolve(objects);
       })
       .catch((validationErrors) => {
-        console.log(validationErrors);
         reject(validationErrors);
       });
   });
@@ -39,9 +37,9 @@ validateObjectOrArray = (type, target) => {
  */
 detachInstance = (instance) => {
   return Object.assign({}, instance.dataValues);
-}
+};
 
 module.exports = {
   validateObjectOrArray,
-  detachInstance
+  detachInstance,
 };

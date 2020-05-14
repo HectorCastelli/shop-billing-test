@@ -82,7 +82,8 @@ module.exports = (sequelize, DataTypes) => {
         } else {
           reject("No such Product exists with this ID");
         }
-      });
+      })
+      .catch(error=>reject(error));
     });
   };
   return Product;
