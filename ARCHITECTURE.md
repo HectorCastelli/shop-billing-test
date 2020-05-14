@@ -109,7 +109,7 @@ The database will have three tables like this:
   - `inCirculation` - If a product can still be purchased, only one element with this `productId` should have this as `true`.
 - Order
   - `finalCost`
-  - `isPayed`
+  - `isPaid`
 - OrderProduct
   - `OrderId`
   - `ProductId` - Not `Product`.`id`, since a same physical product can have multiple entries in `Product` if their values are updated.
@@ -119,10 +119,28 @@ All tables have `id` (except OrderProduct), `createdAt` and `updatedAt` fields t
 
 To comfortably use the sequelize models on other parts of the application, the `src/database/sequelize.js` module is used.
 
-Another addition is, on `api.js`, the first step is to load the database and verify if any tables need creation. This is a design choice to make the application easily testeable when executing on a local environment.
+Another addition is, on `api.js`, the first step is to load the database and verify if any tables need creation. This is a design choice to make the application easily testable when executing on a local environment.
 
 ## Implementing functionality
 
 In the largest scope of things, the easiest step.
 
 My aim is to use the previously created sequelize models to run the necessary queries to execute the functionality that is necessary.
+
+## Add some brains
+
+The only thing that remains now is the analytics part of the API.
+
+Ideally, I would prefer to run the bulk data operations on an ETL, on a schedule to refresh the data, but that would add unnecessary complexity to this project.
+
+The tests for the analytics will load a couple of products, orders and fulfil some of them, in hope to test some of the filtering information.
+
+## Last steps
+
+After implementing all of the functionality, I started to run into some issues with the tests.
+
+Timeouts are occurring frequently and I'm not sure why.
+
+The deadline is upon me, so I will debug this after submitting.
+
+I hope you were able to understand more on how I approach a problem when developing.

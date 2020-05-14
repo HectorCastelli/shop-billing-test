@@ -6,14 +6,28 @@ const {
   sequelize,
 } = require("../../src/database/sequelize");
 
-beforeAll(async () => {
-  return await sequelize.sync({
-    force: true,
-    logging: false,
+beforeAll(() => {
+  return new Promise((resolve, reject) => {
+    sequelize
+      .sync({
+        force: true,
+        logging: false,
+      })
+      .then(() => {
+        sequelize
+          .authenticate()
+          .then(async () => {
+            //Insert sample data for these metrics.
+          })
+          .catch((error) => {
+            console.error(error);
+            reject(error);
+          });
+      });
   });
 });
-afterAll(() => {
-  return sequelize.close();
+afterAll(async () => {
+  return await sequelize.close();
 });
 beforeEach(() => {
   sequelize
@@ -28,24 +42,37 @@ describe("Check Models", () => {
       const testOrder = {
         id: 1,
         finalCost: 10,
-        isPayed: true,
+        isPaid: true,
       };
       const validated = await utilities.validateObjectOrArray(Order, testOrder);
       expect(validated).toContainEqual(testOrder);
     });
+    it("Fail when verifying a valid, but empty Order", async () => {
+      return expect(
+        utilities.validateObjectOrArray(Order, {}, false)
+      ).rejects.toBeTruthy();
+    });
     it("Fail when verifying an invalid Order", async () => {
-      const testOrder = {
+      const validation = await utilities.validateObjectOrArray(Order, {
         id: "also invalid",
         finalCost: "this is invalid",
-        isPayed: 30,
-      };
-      expect(
-        utilities.validateObjectOrArray(Order, testOrder)
-      ).rejects.toThrow();
+        isPaid: 30,
+      });
+      return expect(
+        utilities.validateObjectOrArray(Order, {
+          id: "also invalid",
+          finalCost: "this is invalid",
+          isPaid: 30,
+        })
+      ).rejects.toBeTruthy();
     });
     describe("DetachInstance", () => {
       it("Verify new object is created", async () => {
-        //Test if detached a, then change a, then compare values (they shouldnt match).
+        const order = await Order.create({});
+        const detached = utilities.detachInstance(order);
+        detached.test = "test";
+        expect(detached).toHaveProperty("test");
+        expect(order).not.toHaveProperty("test");
       });
     });
   });
@@ -59,7 +86,7 @@ describe("Check Models", () => {
       const testOrder = {
         id: 1,
         finalCost: 10,
-        isPayed: true,
+        isPaid: true,
       };
       const sampleOrder = await Order.build(testOrder);
       expect(sampleOrder).toBeTruthy();

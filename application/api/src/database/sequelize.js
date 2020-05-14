@@ -45,16 +45,7 @@ database.Sequelize = Sequelize;
 
 database.utilities = require("./utilities");
 
-const syncOptions = {
-  force: false,
-  logging: false,
-};
-if (environment === "development" || environment === "test") {
-  syncOptions.force = true;
-  syncOptions.logging = environment === "development";
-}
-
-sequelize.sync(syncOptions).then(() => {
+sequelize.sync().then(() => {
   if (environment !== "test") console.log(`Database & tables created!`);
 });
 

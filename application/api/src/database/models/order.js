@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       finalCost: {
         type: DataTypes.DECIMAL(10, 2),
       },
-      isPayed: {
+      isPaid: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,

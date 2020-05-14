@@ -11,7 +11,7 @@ module.exports = {
       finalCost: {
         type: Sequelize.DECIMAL(10, 2),
       },
-      isPayed: {
+      isPaid: {
         allowNull: false,
         defaultValue: false,
         type: Sequelize.BOOLEAN,

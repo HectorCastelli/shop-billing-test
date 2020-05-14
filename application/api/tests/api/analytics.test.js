@@ -9,7 +9,7 @@ const {
   OrderProducts,
   sequelize,
 } = require("../../src/database/sequelize");
-beforeAll(async () => {
+beforeAll(() => {
   return new Promise((resolve, reject) => {
     sequelize
       .sync({
@@ -20,12 +20,12 @@ beforeAll(async () => {
         sequelize.authenticate().then(async () => {
           //Insert sample data for these metrics.
 
-          const today = moment();
-          const fiveDaysAgo = today.subtract(5, "days");
-          const sevenDaysAgo = today.subtract(7, "days");
-          const fourteenDaysAgo = today.subtract(14, "days");
+          const today = moment().toDate();
+          const fiveDaysAgo = moment().subtract(5, "days").toDate();
+          const sevenDaysAgo = moment().subtract(7, "days").toDate();
+          const fourteenDaysAgo = moment().subtract(14, "days").toDate();
 
-          const createdProducts = Product.bulkCreate([
+          const createdProducts = await Product.bulkCreate([
             {
               productId: 1,
               name: "2L Cola Soda",
@@ -73,24 +73,24 @@ beforeAll(async () => {
             },
           ]);
 
-          const createdOrders = Order.bulkCreate([
+          const createdOrders = await Order.bulkCreate([
             {
               id: 1,
-              isPayed: true,
+              isPaid: true,
               finalCost: 4.56,
               createdAt: fourteenDaysAgo,
               updatedAt: sevenDaysAgo,
             },
             {
               id: 2,
-              isPayed: true,
+              isPaid: true,
               finalCost: 5.01,
               createdAt: sevenDaysAgo,
               updatedAt: fiveDaysAgo,
             },
             {
               id: 3,
-              isPayed: true,
+              isPaid: true,
               finalCost: 755.01,
               createdAt: fiveDaysAgo,
               updatedAt: today,
@@ -100,7 +100,7 @@ beforeAll(async () => {
             },
           ]);
 
-          const createdOrderProducts = OrderProducts.bulkCreate([
+          const createdOrderProducts = await OrderProducts.bulkCreate([
             {
               OrderId: 1,
               ProductId: 1,
@@ -164,14 +164,7 @@ beforeAll(async () => {
               amount: 1,
             },
           ]);
-
-          Promise.all([
-            createdProducts,
-            createdOrders,
-            createdOrderProducts,
-          ]).then(() => {
-            resolve();
-          });
+          resolve();
         });
       })
       .catch((error) => {
@@ -180,8 +173,8 @@ beforeAll(async () => {
       });
   });
 });
-afterAll(() => {
-  return sequelize.close();
+afterAll(async () => {
+  return await sequelize.close();
 });
 beforeEach(() => {
   sequelize
@@ -191,9 +184,9 @@ beforeEach(() => {
 });
 
 describe("Check Analytics endpoints", () => {
-  const today = moment();
-  const sevenDaysAgo = today.subtract(7, "days");
-  const fourteenDaysAgo = today.subtract(14, "days");
+  const today = moment().toDate();
+  const sevenDaysAgo = moment().subtract(7, "days").toDate();
+  const fourteenDaysAgo = moment().subtract(14, "days").toDate();
 
   describe("Orders Analytics", () => {
     it("Get revenue for today.", async () => {
@@ -201,14 +194,14 @@ describe("Check Analytics endpoints", () => {
         .get(baseUrl + "orders/revenue")
         .query({ from: today });
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty("totalRevenue");
+      expect(res.body).toEqual(9.57);
     });
     it("Get revenue for a week.", async () => {
       const res = await request(api)
         .get(baseUrl + "orders/revenue")
         .query({ from: sevenDaysAgo, to: today });
       expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty("totalRevenue");
+      expect(res.body).toEqual(9.57);
     });
     it("Fail when getting revenue for last week (lack of data)", async () => {
       const res = await request(api)
@@ -217,21 +210,21 @@ describe("Check Analytics endpoints", () => {
       expect(res.statusCode).toEqual(404);
     });
   });
-  describe.only("Product Analytics", () => {
-    describe.only("All Products", () => {
+  describe("Product Analytics", () => {
+    describe("All Products", () => {
       it("Get best-seller product for today", async () => {
         const res = await request(api)
           .get(baseUrl + "products/bestSellers")
           .query({ from: today });
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty("products");
+        expect(res.body).toHaveLength(3);
       });
       it("Get best-seller product for a week.", async () => {
         const res = await request(api)
           .get(baseUrl + "products/bestSellers")
           .query({ from: sevenDaysAgo, to: today });
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty("products");
+        expect(res.body).toHaveLength(3);
       });
       it("Fail when getting best-seller product for last week (lack of data)", async () => {
         const res = await request(api)
@@ -284,10 +277,10 @@ describe("Check Analytics endpoints", () => {
       });
       it("Get a product's price history", async () => {
         const res = await request(api).get(
-          baseUrl + "products/product/1/priceHistory"
+          baseUrl + "products/product/2/priceHistory"
         );
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty("history");
+        expect(res.body).toHaveLength(3);
       });
     });
   });

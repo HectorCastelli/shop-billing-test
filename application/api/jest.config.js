@@ -14,16 +14,14 @@ module.exports = {
     //   "lcov",
     //   "clover"
   ],
-  maxConcurrency: 1,
   reporters: [
     "default",
     [
-      "jest-html-reporters",
+      "jest-html-reporter",
       {
-        publicPath: "./test-report",
-        filename: "report.html",
-        expand: false,
-        hideIcon: true,
+        outputPath: "./test-report/report.html",
+        includeConsoleLog: true,
+        includeFailureMsg: true,
       },
     ],
   ],
@@ -34,4 +32,6 @@ module.exports = {
   verbose: true,
   // The test environment that will be used for testing
   testEnvironment: "node",
+  testTimeout: 6000,
+  maxConcurrency: 1,
 };

@@ -74,8 +74,7 @@ router.get("/search", (req, res) => {
     where: whereClause,
   })
     .then((results) => {
-      console.debug("results", results);
-      if (results && results.length === 0) {
+      if (!results && results.length === 0) {
         res.status(404).send("No Product found with these parameters");
       } else {
         res.status(200).json(results.map((r) => r.serialize()));
@@ -117,8 +116,8 @@ router.post("/product/:productId/updatePrice", (req, res) => {
           res.status(200).json(createdProduct.serialize());
         })
         .catch((error) => {
-          console.error(error);
           console.error("Failure modifying Product", error);
+          res.status(500).send("Failure modifying Product." + error);
         });
     })
     .catch((error) => {

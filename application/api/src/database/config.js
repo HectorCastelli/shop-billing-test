@@ -8,6 +8,15 @@ module.exports = {
     dialect: "sqlite",
     storage: `./${dbName}.sqlite3`,
     logging: console.info,
+    sync: {
+      force: true,
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
   },
 
   test: {
@@ -16,6 +25,15 @@ module.exports = {
     benchmark: true,
     logging: (log, benchmark) => {
       console.debug("query executed:", log, "duration:", benchmark);
+    },
+    sync: {
+      force: true,
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
     },
   },
 
@@ -26,5 +44,14 @@ module.exports = {
     username: dbUser,
     password: dbPassword,
     database: dbName,
+    sync: {
+      force: false,
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
   },
 };

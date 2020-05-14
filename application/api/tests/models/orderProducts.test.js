@@ -5,14 +5,37 @@ const {
   sequelize,
 } = require("../../src/database/sequelize");
 
-beforeAll(async () => {
-  return await sequelize.sync({
-    force: true,
-    logging: false,
+beforeAll(() => {
+  return new Promise((resolve, reject) => {
+    sequelize
+      .sync({
+        force: true,
+        logging: false,
+      })
+      .then(() => {
+        sequelize
+          .authenticate()
+          .then(async () => {
+            //Insert sample data for these metrics.
+            //Insert sample data
+            const createdProducts = await Product.bulkCreate([
+              {
+                productId: 1,
+                name: "2L Cola Soda",
+                unitType: "bottle",
+                basePrice: 1.52,
+              },
+            ]);
+          })
+          .catch((error) => {
+            console.error(error);
+            reject(error);
+          });
+      });
   });
 });
-afterAll(() => {
-  return sequelize.close();
+afterAll(async () => {
+  return await sequelize.close();
 });
 beforeEach(() => {
   sequelize
@@ -26,20 +49,15 @@ describe("Check OrderProducts Model", () => {
     it("Creates a new row when passed a new item", async () => {
       const newOrder = await Order.create({});
       expect(newOrder).toBeTruthy();
-      const newProduct = await Product.create({
-        productId: 1,
-        name: "test",
-        unitType: "object",
-        basePrice: 1.5,
-      });
+      const newProduct = await Product.findByPk(1);
       expect(newProduct).toBeTruthy();
       OrderProducts.build({
         ProductId: newProduct.serialize().productId,
         OrderId: newOrder.serialize().id,
         amount: 10,
-      }).validate()
+      })
+        .validate()
         .then((created) => {
-          console.warn(created);
           expect(created).toHaveProperty("amount");
         })
         .catch((error) => {
@@ -47,6 +65,6 @@ describe("Check OrderProducts Model", () => {
           throw error;
         });
     });
-    //test update old item
+    it.todo("Verify an update on an previously created OrderProducts");
   });
 });

@@ -8,14 +8,125 @@ const {
   OrderProducts,
   sequelize,
 } = require("../../src/database/sequelize");
-beforeAll(async () => {
-  return await sequelize.sync({
-    force: true,
-    logging: false,
+beforeAll(() => {
+  return new Promise((resolve, reject) => {
+    sequelize
+      .sync({
+        force: true,
+        logging: false,
+      })
+      .then(() => {
+        sequelize.authenticate().then(async () => {
+          //Insert sample data
+          const createdProducts = await Product.bulkCreate([
+            {
+              productId: 1,
+              name: "2L Cola Soda",
+              unitType: "bottle",
+              basePrice: 1.52,
+            },
+            {
+              productId: 2,
+              name: "white rice",
+              unitType: "kilo",
+              basePrice: 0.1,
+              inCirculation: false,
+            },
+            {
+              productId: 2,
+              name: "white rice",
+              unitType: "kilo",
+              basePrice: 0.2,
+              inCirculation: false,
+            },
+            {
+              productId: 2,
+              name: "white rice",
+              unitType: "kilo",
+              basePrice: 0.15,
+            },
+            {
+              productId: 3,
+              name: "Nintendo Switch",
+              unitType: "console",
+              basePrice: 250,
+              inCirculation: false,
+            },
+            {
+              productId: 4,
+              name: "Gardening Kit",
+              unitType: "unit",
+              basePrice: 12.52,
+            },
+            {
+              productId: 5,
+              name: "Face masks",
+              unitType: "3-pack",
+              basePrice: 7.5,
+            },
+            {
+              productId: 6,
+              name: "1.5L Lemon Soda",
+              unitType: "bottle",
+              basePrice: 1.31,
+            },
+            {
+              productId: 7,
+              name: "Sushi box",
+              unitType: "box",
+              basePrice: 12.52,
+            },
+            {
+              productId: 8,
+              name: "Microwave Gyozas",
+              unitType: "pack of six",
+              basePrice: 3.12,
+            },
+            {
+              productId: 9,
+              name: "Nuggets",
+              unitType: "pack",
+              basePrice: 3.65,
+            },
+            {
+              productId: 10,
+              name: "Organic Nuggets",
+              unitType: "pack",
+              basePrice: 5.2,
+            },
+          ]);
+
+          const createdOrders = await Order.bulkCreate([
+            {
+              id: 1,
+              isPaid: true,
+              finalCost: 4.56,
+            },
+            {
+              id: 2,
+              isPaid: true,
+              finalCost: 5.01,
+            },
+            {
+              id: 3,
+              isPaid: true,
+              finalCost: 755.01,
+            },
+            {
+              id: 4,
+            },
+          ]);
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        reject(error);
+      });
   });
 });
-afterAll(() => {
-  return sequelize.close();
+
+afterAll(async () => {
+  return await sequelize.close();
 });
 beforeEach(() => {
   sequelize
@@ -45,13 +156,13 @@ describe("Check Orders endpoints", () => {
       expect(res.statusCode).toEqual(201);
       expect(res.body[0]).toHaveProperty("id");
     });
-    it("Fetch an valid order", async () => {
+    it("Fetch a valid order", async () => {
       const res = await request(api).get(baseUrl + "order/1");
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty("id");
     });
     it("Fail when retrieving an invalid order", async () => {
-      const orderId = 1234;
+      const orderId = 9999;
       const res = await request(api).get(baseUrl + `order/${orderId}`);
       expect(res.statusCode).toEqual(404);
     });
@@ -60,41 +171,22 @@ describe("Check Orders endpoints", () => {
     describe("Product Addition", () => {
       it("Add a single product to an order", async () => {
         const newOrder = await Order.create({});
-        const sampleProductId = 4;
-        const sampleProduct = await Product.create({
-          productId: sampleProductId,
-          name: "2L Soda",
-          unitType: "bottle",
-          basePrice: 1.52,
-        });
+        const sampleProduct = await Product.findByPk(1);
         const res = await request(api)
           .post(baseUrl + "order/" + newOrder.id + "/product/add")
           .send({
-            ProductId: sampleProductId,
+            ProductId: sampleProduct.serialize.productId,
             amount: 1,
           });
         expect(res.statusCode).toEqual(201);
       });
       it("Add multiple products to an order", async () => {
+        const newOrder = await Order.create({});
         const sampleProducts = [];
-        sampleProducts.push(
-          await Product.create({
-            productId: 5,
-            name: "Gardening Kit",
-            unitType: "unit",
-            basePrice: 12.52,
-          })
-        );
-        sampleProducts.push(
-          await Product.create({
-            productId: 6,
-            name: "1.5L Lemon Soda",
-            unitType: "bottle",
-            basePrice: 1.31,
-          })
-        );
+        sampleProducts.push(await Product.findByPk(4));
+        sampleProducts.push(await Product.findByPk(6));
         const res = await request(api)
-          .post(baseUrl + "order/1/product/add")
+          .post(baseUrl + "order/" + newOrder.id + "/product/add")
           .send([
             { ProductId: sampleProducts[0].serialize().productId, amount: 0.2 },
             { ProductId: sampleProducts[1].serialize().productId, amount: 2 },
@@ -102,8 +194,9 @@ describe("Check Orders endpoints", () => {
         expect(res.statusCode).toEqual(201);
       });
       it("Fail when adding an invalid product to an order", async () => {
+        const newOrder = await Order.create({});
         const res = await request(api)
-          .post(baseUrl + "order/1/product/add")
+          .post(baseUrl + "order/" + newOrder.id + "/product/add")
           .send({ invalid: "value" });
         expect(res.statusCode).toEqual(400);
       });
@@ -113,32 +206,18 @@ describe("Check Orders endpoints", () => {
       it("Remove a single unit of a product from a valid Order", async () => {
         Order.create({}).then(async (newOrder) => {
           const newOrderId = newOrder.serialize().id;
-          let sampleProducts = [
-            {
-              productId: 6,
-              name: "Sushi box",
-              unitType: "box",
-              basePrice: 12.52,
-            },
-            {
-              productId: 7,
-              name: "Microwave Gyozas",
-              unitType: "pack of six",
-              basePrice: 3.12,
-            },
-          ];
-
-          sampleProducts = await Product.bulkCreate(sampleProducts);
-          console.warn(sampleProducts);
+          let sampleProducts = [];
+          sampleProducts.push(await Product.findByPk(7));
+          sampleProducts.push(await Product.findByPk(8));
           const sampleOrderProducts = [
             {
               OrderId: newOrderId,
-              ProductId: 6,
+              ProductId: sampleProducts[0].serialize.productId,
               amount: 10,
             },
             {
               OrderId: newOrderId,
-              ProductId: 7,
+              ProductId: sampleProducts[1].serialize.productId,
               amount: 3,
             },
           ];
@@ -155,7 +234,7 @@ describe("Check Orders endpoints", () => {
           const res = await request(api)
             .post(baseUrl + "order/" + newOrderId + "/product/remove")
             .send({
-              ProductId: 6,
+              ProductId: sampleProducts[0].serialize.productId,
               amount: 1,
             });
           expect(res.statusCode).toEqual(200);
@@ -165,32 +244,21 @@ describe("Check Orders endpoints", () => {
       it("Remove a product from a valid Order", async () => {
         Order.create({}).then(async (newOrder) => {
           const newOrderId = newOrder.serialize().id;
-          let sampleProducts = [
-            {
-              productId: 8,
-              name: "Nuggets",
-              unitType: "pack",
-              basePrice: 3.65,
-            },
-            {
-              productId: 9,
-              name: "Organiz Nuggets",
-              unitType: "pack",
-              basePrice: 5.2,
-            },
-          ];
+          let sampleProducts = [];
+          sampleProducts.push(await Product.findByPk(9));
+          sampleProducts.push(await Product.findByPk(10));
 
           sampleProducts = await Product.bulkCreate(sampleProducts);
           console.warn(sampleProducts);
           const sampleOrderProducts = [
             {
               OrderId: newOrderId,
-              ProductId: 8,
+              ProductId: sampleProducts[0].serialize.productId,
               amount: 10,
             },
             {
               OrderId: newOrderId,
-              ProductId: 9,
+              ProductId: sampleProducts[1].serialize.productId,
               amount: 3,
             },
           ];
@@ -207,7 +275,7 @@ describe("Check Orders endpoints", () => {
           const res = await request(api)
             .post(baseUrl + "order/" + newOrderId + "/product/remove")
             .send({
-              ProductId: 8,
+              ProductId: sampleProducts[0].serialize.productId,
             });
           expect(res.statusCode).toEqual(200);
           expect(res.body).toHaveProperty("remainingAmount");
@@ -225,34 +293,21 @@ describe("Check Orders endpoints", () => {
       it("Compute the cost of an order", async () => {
         Order.create({}).then(async (newOrder) => {
           const newOrderId = newOrder.serialize().id;
-          console.warn(newOrderId);
-
-          let sampleProducts = [
-            {
-              productId: 1,
-              name: "Gardening Kit",
-              unitType: "unit",
-              basePrice: 12.52,
-            },
-            {
-              productId: 2,
-              name: "1.5L Lemon Soda",
-              unitType: "bottle",
-              basePrice: 1.31,
-            },
-          ];
+          let sampleProducts = [];
+          sampleProducts.push(await Product.findByPk(1));
+          sampleProducts.push(await Product.findByPk(2));
 
           sampleProducts = await Product.bulkCreate(sampleProducts);
           console.warn(sampleProducts);
           const sampleOrderProducts = [
             {
               OrderId: newOrderId,
-              ProductId: 1,
+              ProductId: sampleProducts[0].serialize.productId,
               amount: 10,
             },
             {
               OrderId: newOrderId,
-              ProductId: 2,
+              ProductId: sampleProducts[1].serialize.productId,
               amount: 3,
             },
           ];
@@ -281,7 +336,7 @@ describe("Check Orders endpoints", () => {
       it("Process payment to a valid order", async () => {
         const res = await request(api).post(baseUrl + "order/1/processPayment");
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty("isPayed", true);
+        expect(res.body).toHaveProperty("isPaid", true);
       });
       it("Process payment to an invalid (already paid for) order", async () => {
         const res = await request(api).post(baseUrl + "order/1/processPayment");

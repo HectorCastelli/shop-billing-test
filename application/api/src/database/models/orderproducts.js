@@ -72,8 +72,9 @@ module.exports = (sequelize, DataTypes) => {
         return updatedOrderProduct;
       })
       .catch((error) => {
-        console.error(error);
-        console.debug(error.sql);
+        console.error(
+          "Failed updating amount or inserting new orderProduct. " + error
+        );
       });
   };
   return OrderProducts;

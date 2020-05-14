@@ -197,11 +197,20 @@ router.post("/order/:orderId/processPayment", (req, res) => {
       if (!order) {
         res.status(404).send("No order with this ID exists.");
       } else {
-        if (!order.isPayed) {
-          order.isPayed = true;
-          order.save().then((updatedOrder) => {
-            res.status(200).json(updatedOrder.serialize());
-          });
+        if (!order.isPaid) {
+          order
+            .getFinalCost()
+            .then((orderCost) => {
+              order.isPaid = true;
+              order.finalCost = orderCost.finalCost;
+              order.save().then((updatedOrder) => {
+                res.status(200).json(updatedOrder.serialize());
+              });
+            })
+            .catch((error) => {
+              console.error(error);
+              res.status(500).send("Problem computing final Cost. " + error);
+            });
         } else {
           res.status(403).send("You cannot pay for an already paid for order.");
         }
