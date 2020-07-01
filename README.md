@@ -66,8 +66,8 @@ The required deliverables of this test are:
 
 ## How to use this repository
 
-You can read on how to test and deploy this application on the [`USAGE.md`](usage.md) file.
+You can read on how to test and deploy this application on the [`USAGE.md`](https://github.com/HectorCastelli/shop-billing-test/blob/master/USAGE.md) file.
 
 ## Architecture
 
-If you are curious on why/how things are built, check out the [`ARCHITECTURE.md`](architecture.md) file.
+If you are curious on why/how things are built, check out the [`ARCHITECTURE.md`](https://github.com/HectorCastelli/shop-billing-test/blob/master/ARCHITECTURE.md) file.
